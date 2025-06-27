@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Computer Science Videos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000000, #333333, #666666, #999999, #CCCCCC);
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5rem;
+    }
+    
+
+    #video-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+
+    .video-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .video-card:hover {
+      transform: scale(1.05);
+    }
+
+    .video-card iframe {
+      width: 100%;
+      height: 180px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    .video-card p {
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      margin-top: 10px;
+    }
+
+    #loadMore {
+      background: #ffdb58;
+      color: black;
+      font-size: 1rem;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px auto;
+      display: none;
+      transition: background 0.3s ease-in-out;
+    }
+
+    #loadMore:hover {
+      background: #e6c33b;
+    }
+
+    @media (max-width: 600px) {
+      #video-container {
+        grid-template-columns: 1fr;
+      }
+
+      .video-card iframe {
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Computer Science Videos</h1>
+  <div id="video-container">Loading...</div>
+  <button id="loadMore">Load More</button>
+
+  <script>
+    let nextPageToken = '';
+    let isLoading = false;
+
+    function handleClientLoad() {
+      gapi.load('client', initClient);
+    }
+
+    function initClient() {
+      gapi.client.init({
+        apiKey: 'AIzaSyDUwkRyJFo84RDDk5_tg_Bx5n95EflP0zg' // Replace with your actual API key
+      }).then(() => {
+        return gapi.client.load('youtube', 'v3');
+      }).then(() => {
+        fetchComputerVideos();
+        document.getElementById('loadMore').addEventListener('click', fetchComputerVideos);
+      }).catch(error => {
+        console.error("Error initializing API client:", error);
+        document.getElementById('video-container').innerText = "Failed to load videos.";
+      });
+    }
+
+    function fetchComputerVideos() {
+      if (isLoading) return;
+      isLoading = true;
+
+      gapi.client.youtube.search.list({
+        part: 'snippet',
+        q: 'computer science for beginners',
+        type: 'video',
+        maxResults: 6,
+        pageToken: nextPageToken
+      }).then(response => {
+        const videos = response.result.items;
+        const container = document.getElementById('video-container');
+        if (container.innerText === 'Loading...') container.innerHTML = '';
+
+        videos.forEach(video => {
+          const videoId = video.id.videoId;
+          const title = video.snippet.title;
+
+          const card = document.createElement('div');
+          card.className = 'video-card';
+          card.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+            <p>${title}</p>
+          `;
+          container.appendChild(card);
+        });
+
+        nextPageToken = response.result.nextPageToken || '';
+        isLoading = false;
+
+        if (nextPageToken) {
+          document.getElementById('loadMore').style.display = 'inline-block';
+        } else {
+          document.getElementById('loadMore').style.display = 'none';
+        }
+
+      }).catch(error => {
+        console.error("Failed to fetch videos:", error);
+        document.getElementById('video-container').innerText = "Error loading videos.";
+        isLoading = false;
+      });
+    }
+  </script>
+
+  <script src="https://apis.google.com/js/api.js" onload="handleClientLoad()"></script>
+</body>
+</html>

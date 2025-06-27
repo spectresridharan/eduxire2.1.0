@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnRewards - Earn Free Coins While Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-blue: #4361ee;
+            --secondary-blue: #3a0ca3;
+            --coin-yellow: #ffd60a;
+            --coin-yellow-dark: #ffc300;
+            --light-gray: #f8f9fa;
+            --dark-gray: #212529;
+            --white: #ffffff;
+            --gradient-blue-yellow: linear-gradient(135deg, var(--primary-blue) 0%, var(--coin-yellow) 100%);
+            --gradient-blue-dark: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--white);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 100px 0;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--primary-blue);
+            margin-bottom: 16px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        p {
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transform: translateY(0) scale(1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-blue-dark);
+            color: var(--white);
+            transform-style: preserve-3d;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.4);
+            animation: btnPulse 2s infinite;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-blue-yellow);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn-primary:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        .btn-secondary {
+            background: var(--gradient-blue-yellow);
+            color: var(--dark-gray);
+            font-weight: 800;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 214, 10, 0.4);
+            animation: btnPulseYellow 2s infinite;
+        }
+        
+        .btn-disabled {
+            background-color: #e0e0e0;
+            color: #8a8a8a;
+            cursor: not-allowed;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-blue {
+            color: var(--primary-blue);
+        }
+        
+        .text-yellow {
+            color: var(--coin-yellow);
+        }
+        
+        .mb-4 {
+            margin-bottom: 24px;
+        }
+        
+        /* Header and Navigation */
+        header {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(0);
+        }
+        
+        header.hidden {
+            transform: translateY(-100%);
+        }
+        
+        header.scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 5px 40px rgba(0, 0, 0, 0.15);
+            padding: 5px 0;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary-blue);
+    background: var(--gradient-blue-yellow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-text-fill-color: transparent; /* Ensure cross-browser compatibility */
+    transition: all 0.3s ease;
+    text-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
+}
+        
+        .logo-coin {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-blue-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            color: var(--white);
+            font-size: 20px;
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: coinSpin 8s infinite linear;
+        }
+        
+        .logo:hover .logo-coin {
+            animation: coinBounce 0.8s ease infinite alternate;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 32px;
+            position: relative;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            font-size: 16px;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: -5px;
+            left: 0;
+            background: var(--gradient-blue-yellow);
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 3px;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            color: var(--primary-blue);
+        }
+        
+        .hamburger:hover {
+            color: var(--coin-yellow);
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding-top: 160px;
+            background: linear-gradient(135deg, var(--white) 0%, #f0f4ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 12s infinite alternate, gradientMove 25s infinite alternate;
+        }
+        
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .hero h1 {
+    font-size: 64px;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    background: var(--gradient-blue-yellow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text; /* Ensure compatibility */
+    animation: fadeInUp 1s ease, textGlow 3s infinite alternate;
+    transform: translateZ(50px);
+}
+        
+        .hero p {
+            font-size: 22px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+            transform: translateZ(30px);
+        }
+        
+        .hero .btn {
+            animation: fadeInUp 1s ease 0.4s forwards, float 4s ease-in-out infinite;
+            opacity: 0;
+            transform: translateZ(40px);
+            align-self: flex-start;
+        }
+        
+        .coin-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-blue-yellow);
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            animation: pulse 2s infinite, coinSpin 5s infinite linear;
+        }
+        
+        /* Floating coins animation */
+        .floating-coins {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--gradient-blue-yellow);
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            animation: float 8s infinite ease-in-out, coinSpin 10s infinite linear;
+            opacity: 0.8;
+            transform-style: preserve-3d;
+        }
+        
+        .coin::before {
+            content: '$';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .coin:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+            width: 25px;
+            height: 25px;
+            animation-duration: 9s;
+        }
+        
+        .coin:nth-child(2) {
+            top: 60%;
+            left: 15%;
+            animation-delay: 1s;
+            width: 30px;
+            height: 30px;
+            animation-duration: 8s;
+        }
+        
+        .coin:nth-child(3) {
+            top: 30%;
+            right: 20%;
+            animation-delay: 2s;
+            width: 35px;
+            height: 35px;
+            animation-duration: 10s;
+        }
+        
+        .coin:nth-child(4) {
+            top: 70%;
+            right: 15%;
+            animation-delay: 3s;
+            width: 40px;
+            height: 40px;
+            animation-duration: 7s;
+        }
+        
+        .coin:nth-child(5) {
+            top: 40%;
+            left: 25%;
+            animation-delay: 1.5s;
+            width: 20px;
+            height: 20px;
+            animation-duration: 6s;
+        }
+        
+        .coin:nth-child(6) {
+            top: 80%;
+            left: 30%;
+            animation-delay: 2.5s;
+            width: 25px;
+            height: 25px;
+            animation-duration: 9s;
+        }
+        
+        .coin:nth-child(7) {
+            top: 50%;
+            right: 30%;
+            animation-delay: 0.5s;
+            width: 30px;
+            height: 30px;
+            animation-duration: 8s;
+        }
+        
+        /* How It Works Section */
+        .how-it-works {
+            background-color: var(--white);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .how-it-works::before {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate-reverse, gradientMove 30s infinite alternate-reverse;
+        }
+        
+        .how-it-works .container {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 80px;
+            perspective: 2000px;
+            transform-style: preserve-3d;
+        }
+        
+        .step-card {
+            flex: 1;
+            min-width: 280px;
+            margin: 20px;
+            padding: 50px 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            background-color: var(--white);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            opacity: 0;
+            transform: translateY(80px) rotateX(20deg);
+            will-change: transform, opacity;
+        }
+        
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient-blue-yellow);
+            transition: height 0.5s ease;
+        }
+        
+        .step-card:hover::before {
+            height: 15px;
+        }
+        
+        .step-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(67, 97, 238, 0.05);
+            transition: height 0.5s ease;
+            z-index: -1;
+        }
+        
+        .step-card:hover::after {
+            height: 100%;
+        }
+        
+        .step-card.animated {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+        
+        .step-card:nth-child(1).animated {
+            transition-delay: 0.2s;
+        }
+        
+        .step-card:nth-child(2).animated {
+            transition-delay: 0.4s;
+        }
+        
+        .step-card:nth-child(3).animated {
+            transition-delay: 0.6s;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-20px) scale(1.05) rotateX(0);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .step-icon {
+    font-size: 60px;
+    margin-bottom: 30px;
+    display: inline-block;
+    background: var(--gradient-blue-yellow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text; /* Ensure compatibility */
+    transition: all 0.5s ease;
+    transform: translateZ(30px);
+}
+        
+        .step-card:hover .step-icon {
+            transform: scale(1.2) rotate(10deg) translateZ(50px);
+            animation: iconBounce 0.8s ease infinite alternate;
+        }
+        
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-blue-yellow);
+            color: var(--white);
+            border-radius: 50%;
+            font-weight: bold;
+            margin: 0 auto 30px;
+            font-size: 24px;
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+            transition: all 0.5s ease;
+            transform: translateZ(40px);
+        }
+        
+        .step-card:hover .step-number {
+            transform: scale(1.1) translateZ(60px);
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Features Section */
+        .features {
+            background-color: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .features::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate-reverse, gradientMove 25s infinite alternate-reverse;
+        }
+        
+        .features .container {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+            perspective: 2000px;
+        }
+        
+        .feature-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 50px 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transform: scale(0.95) rotateY(10deg);
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient-blue-yellow);
+            transition: height 0.5s ease;
+        }
+        
+        .feature-card:hover::before {
+            height: 15px;
+        }
+        
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(67, 97, 238, 0.05);
+            transition: height 0.5s ease;
+            z-index: -1;
+        }
+        
+        .feature-card:hover::after {
+            height: 100%;
+        }
+        
+        .feature-card.animated {
+            transform: scale(1) rotateY(0);
+            opacity: 1;
+        }
+        
+        .feature-card:nth-child(1).animated {
+            transition-delay: 0.2s;
+        }
+        
+        .feature-card:nth-child(2).animated {
+            transition-delay: 0.4s;
+        }
+        
+        .feature-card:nth-child(3).animated {
+            transition-delay: 0.6s;
+        }
+        
+        .feature-card:nth-child(4).animated {
+            transition-delay: 0.8s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.05) rotateY(0);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+    font-size: 54px;
+    margin-bottom: 30px;
+    display: inline-block;
+    background: var(--gradient-blue-yellow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text; /* Ensure compatibility */
+    transition: all 0.5s ease;
+    transform: translateZ(30px);
+}
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.3) rotate(15deg) translateZ(50px);
+            animation: iconWobble 0.8s ease infinite alternate;
+        }
+        
+        /* Progress Tracker */
+        .progress-tracker-section {
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .progress-tracker-section::before {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate-reverse, gradientMove 30s infinite alternate-reverse;
+        }
+        
+        .progress-tracker-section .container {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .progress-tracker {
+            background-color: var(--white);
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            margin-top: 60px;
+            transform: translateY(80px) scale(0.95);
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient-blue-yellow);
+        }
+        
+        .progress-tracker.animated {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 30px;
+            flex: 1;
+            min-width: 220px;
+            transition: all 0.6s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            transition: all 0.5s ease;
+            transform: translateZ(40px);
+        }
+        
+        .stat-item:hover .stat-value {
+            color: var(--coin-yellow);
+            transform: scale(1.1) translateZ(60px);
+        }
+        
+        .stat-label {
+            font-size: 18px;
+            color: var(--dark-gray);
+            font-weight: 600;
+            transition: all 0.5s ease;
+        }
+        
+        .stat-item:hover .stat-label {
+            color: var(--primary-blue);
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 25px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 40px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateZ(30px);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: var(--gradient-blue-yellow);
+            border-radius: 15px;
+            transition: width 2s ease-out;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.9) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 3s infinite;
+        }
+        
+        /* Store Preview Section */
+        .store-preview {
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .store-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate, gradientMove 25s infinite alternate;
+        }
+        
+        .store-preview .container {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+            perspective: 2000px;
+        }
+        
+        .product-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transform: translateY(50px) rotateX(10deg);
+            opacity: 0;
+            position: relative;
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+        }
+        
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient-blue-yellow);
+            transition: height 0.5s ease;
+            z-index: 1;
+        }
+        
+        .product-card:hover::before {
+            height: 15px;
+        }
+        
+        .product-card.animated {
+            transform: translateY(0) rotateX(0);
+            opacity: 1;
+        }
+        
+        .product-card:nth-child(1).animated {
+            transition-delay: 0.2s;
+        }
+        
+        .product-card:nth-child(2).animated {
+            transition-delay: 0.4s;
+        }
+        
+        .product-card:nth-child(3).animated {
+            transition-delay: 0.6s;
+        }
+        
+        .product-card:nth-child(4).animated {
+            transition-delay: 0.8s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-15px) scale(1.05) rotateX(0);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 250px;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .product-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-blue-yellow);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+        
+        .product-card:hover .product-image::before {
+            opacity: 0.15;
+        }
+        
+        .product-image img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transform: translateZ(30px);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.15) translateZ(50px);
+        }
+        
+        .product-info {
+            padding: 30px;
+            transform-style: preserve-3d;
+        }
+        
+        .product-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+            transition: color 0.5s ease;
+            transform: translateZ(40px);
+        }
+        
+        .product-card:hover .product-title {
+            color: var(--primary-blue);
+        }
+        
+        .product-price {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark-gray);
+            margin-bottom: 25px;
+            transform: translateZ(30px);
+        }
+        
+        .product-coin {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-blue-yellow);
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+            animation: pulse 2s infinite, coinSpin 6s infinite linear;
+            transform: translateZ(20px);
+        }
+        
+        .product-card:hover .product-coin {
+            animation: coinBounce 0.8s ease infinite alternate, pulse 2s infinite, coinSpin 6s infinite linear;
+        }
+        
+        /* User Dashboard Section */
+        .dashboard-preview {
+            background: var(--gradient-blue-dark);
+            color: var(--white);
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .dashboard-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 214, 10, 0.15) 0%, rgba(255, 214, 10, 0.1) 70%, transparent 100%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate, gradientMove 30s infinite alternate;
+        }
+        
+        .dashboard-preview .container {
+            position: relative;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        
+        .dashboard-preview h2 {
+            color: var(--white);
+            font-size: 48px;
+            margin-bottom: 25px;
+            animation: fadeInUp 1s ease, textGlowWhite 3s infinite alternate;
+            transform: translateZ(50px);
+        }
+        
+        .dashboard-preview p {
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 20px;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+            transform: translateZ(30px);
+        }
+        
+        .dashboard-preview .btn {
+            animation: fadeInUp 1s ease 0.4s forwards, float 4s ease-in-out infinite;
+            opacity: 0;
+            transform: translateZ(40px);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-gray);
+            color: var(--white);
+            padding: 100px 0 40px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient-blue-yellow);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            transform-style: preserve-3d;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 50px;
+            transform: translateY(50px) rotateX(10deg);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            will-change: transform, opacity;
+        }
+        
+        .footer-column.animated {
+            transform: translateY(0) rotateX(0);
+            opacity: 1;
+        }
+        
+        .footer-column:nth-child(1).animated {
+            transition-delay: 0.2s;
+        }
+        
+        .footer-column:nth-child(2).animated {
+            transition-delay: 0.4s;
+        }
+        
+        .footer-column:nth-child(3).animated {
+            transition-delay: 0.6s;
+        }
+        
+        .footer-column:nth-child(4).animated {
+            transition-delay: 0.8s;
+        }
+        
+        .footer-column h3 {
+            color: var(--white);
+            font-size: 24px;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+            transform: translateZ(40px);
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient-blue-yellow);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        
+        .footer-column:hover h3::after {
+            width: 100px;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+            transition: all 0.5s ease;
+            transform: translateZ(30px);
+        }
+        
+        .footer-links li:hover {
+            transform: translateX(10px) translateZ(50px);
+        }
+        
+        .footer-links a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: all 0.5s ease;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .footer-links a::before {
+            content: '→';
+            position: absolute;
+            left: -25px;
+            opacity: 0;
+            color: var(--coin-yellow);
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--coin-yellow);
+            padding-left: 25px;
+        }
+        
+        .footer-links a:hover::before {
+            opacity: 1;
+            left: 0;
+        }
+        
+        .social-icons {
+            display: flex;
+            margin-top: 30px;
+            transform-style: preserve-3d;
+        }
+        
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #495057;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            color: white;
+            font-size: 20px;
+            transform: translateZ(30px);
+        }
+        
+        .social-icon:hover {
+            background: var(--gradient-blue-yellow);
+            transform: translateY(-10px) scale(1.1) translateZ(50px);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
+            animation: iconWobble 0.8s ease infinite alternate;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 60px;
+            margin-top: 40px;
+            border-top: 1px solid #495057;
+            font-size: 16px;
+            color: #adb5bd;
+            transform: translateZ(30px);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+        
+        @keyframes coinSpin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes coinBounce {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                transform: translateY(-10px) scale(1.1);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes gradientMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(5%, 5%);
+            }
+            50% {
+                transform: translate(10%, 0);
+            }
+            75% {
+                transform: translate(5%, -5%);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+        
+        @keyframes btnPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+            }
+        }
+        
+        @keyframes btnPulseYellow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 214, 10, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 214, 10, 0);
+            }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        @keyframes textGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(67, 97, 238, 0.3);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(67, 97, 238, 0.6);
+            }
+        }
+        
+        @keyframes textGlowWhite {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            }
+        }
+        
+        @keyframes iconBounce {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                transform: translateY(-10px) scale(1.1);
+            }
+        }
+        
+        @keyframes iconWobble {
+            0% {
+                transform: rotate(-5deg);
+            }
+            100% {
+                transform: rotate(5deg);
+            }
+        }
+        
+        /* Particle effects */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--coin-yellow);
+            border-radius: 50%;
+            animation: particleFloat 10s infinite linear;
+            opacity: 0.6;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .hero h1 {
+                font-size: 54px;
+            }
+            
+            .step-card, .feature-card {
+                min-width: 240px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 48px;
+            }
+            
+            .steps-container {
+                flex-direction: column;
+            }
+            
+            .step-card {
+                margin-bottom: 40px;
+            }
+            
+            .progress-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-item {
+                margin-bottom: 40px;
+            }
+            
+            .product-card {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(255, 255, 255, 0.98);
+                flex-direction: column;
+                padding: 100px 30px 30px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                transform: translateY(-100%);
+                transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+            }
+            
+            .nav-links li {
+                margin: 20px 0;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.5s ease;
+            }
+            
+            .nav-links.active li {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            .nav-links li:nth-child(1) {
+                transition-delay: 0.1s;
+            }
+            
+            .nav-links li:nth-child(2) {
+                transition-delay: 0.2s;
+            }
+            
+            .nav-links li:nth-child(3) {
+                transition-delay: 0.3s;
+            }
+            
+            .nav-links li:nth-child(4) {
+                transition-delay: 0.4s;
+            }
+            
+            .nav-links li:nth-child(5) {
+                transition-delay: 0.5s;
+            }
+            
+            .hamburger {
+                display: block;
+                position: relative;
+                z-index: 1001;
+            }
+            
+            .hero {
+                padding-top: 120px;
+                min-height: auto;
+                text-align: center;
+            }
+            
+            .hero-content {
+                text-align: center;
+                align-items: center;
+            }
+            
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .hero .btn {
+                align-self: center;
+            }
+            
+            .features-grid, .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-column {
+                min-width: 100%;
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            
+            .footer-column h3::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .social-icons {
+                justify-content: center;
+            }
+            
+            .footer-links li:hover {
+                transform: translateX(5px) translateZ(50px);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .step-card, .feature-card, .product-card {
+                min-width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            
+            .progress-tracker {
+                padding: 40px 20px;
+            }
+            
+            .dashboard-preview h2 {
+                font-size: 36px;
+            }
+            
+            .dashboard-preview p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating coins -->
+    <div class="floating-coins">
+        <div class="coin"></div>
+        <div class="coin"></div>
+        <div class="coin"></div>
+        <div class="coin"></div>
+        <div class="coin"></div>
+        <div class="coin"></div>
+        <div class="coin"></div>
+    </div>
+
+    <!-- Particle effects -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header id="mainHeader">
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <div class="logo-coin">$</div>
+                    <div class="logo-text">LearnRewards</div>
+                </div>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#store">Store</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    
+                </ul>
+                <div class="hamburger" id="hamburger">☰</div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Learn, Earn, <span class="text-yellow">Reward</span> Yourself</h1>
+                <p>Discover a new way to make learning rewarding. Complete lessons, earn Free Coins, and exchange them for valuable study materials in our Study Store.</p>
+                <a href="#start-earning" class="btn btn-secondary">Start Earning Coins</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="text-center">How It Works</h2>
+            <p class="text-center mb-4">Our Free Coins system makes learning more engaging and rewarding. Here's how you can benefit from it:</p>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📚</div>
+                    <h3>Learn & Complete Tasks</h3>
+                    <p>Take courses, complete quizzes, and attend live classes to earn points.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">💰</div>
+                    <h3>Earn Free Coins</h3>
+                    <p>Convert your points into Free Coins that you can spend in our Study Store.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🛍️</div>
+                    <h3>Spend in Study Store</h3>
+                    <p>Use your earned coins to get study materials, e-books, and more.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="text-center">Unique Features</h2>
+            <p class="text-center mb-4">Our platform offers several innovative features to enhance your learning experience:</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Gamified Learning Rewards</h3>
+                    <p>Earn coins for completing lessons, solving quizzes, or attending live classes. The more you learn, the more you earn!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🛒</div>
+                    <h3>Study Store Access</h3>
+                    <p>Use earned coins to "buy" stationary and study materials like notebooks, pens, flashcards, exam kits, or e-books.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Progress Tracker</h3>
+                    <p>Visual tracker showing coins earned and coins spent. Monitor your learning journey and rewards in real-time.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure & Fair</h3>
+                    <p>Each item in the store has a coin value, and you see what you can afford based on your balance. No hidden costs!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Tracker -->
+    <section class="progress-tracker-section">
+        <div class="container">
+            <h2 class="text-center">Track Your Progress</h2>
+            <p class="text-center mb-4">Monitor your learning journey and coin balance with our intuitive progress tracker.</p>
+            
+            <div class="progress-tracker">
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            <div class="coin-icon"></div>520
+                        </div>
+                        <div class="stat-label">Coins Earned</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            <div class="coin-icon"></div>185
+                        </div>
+                        <div class="stat-label">Coins Spent</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            <div class="coin-icon"></div>335
+                        </div>
+                        <div class="stat-label">Available Balance</div>
+                    </div>
+                </div>
+                
+                <p class="text-center">Coins Earning Progress This Month</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Store Preview Section -->
+    <section class="store-preview" id="store">
+        <div class="container">
+            <h2 class="text-center">Study Store Preview</h2>
+            <p class="text-center mb-4">Browse our collection of study materials available for purchase with your earned coins.</p>
+            
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/400x300?text=Premium+Notebook" alt="Premium Notebook">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">Premium Notebook</div>
+                        <div class="product-price"><div class="product-coin"></div> 120 Coins</div>
+                        <a href="#buy-product" class="btn btn-primary">Buy with Coins</a>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/400x300?text=Digital+Flashcards" alt="Digital Flashcards">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">Digital Flashcards</div>
+                        <div class="product-price"><div class="product-coin"></div> 85 Coins</div>
+                        <a href="#buy-product" class="btn btn-primary">Buy with Coins</a>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/400x300?text=Exam+Kit" alt="Exam Kit">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">Exam Preparation Kit</div>
+                        <div class="product-price"><div class="product-coin"></div> 350 Coins</div>
+                        <a href="#need-more-coins" class="btn btn-disabled">Not Enough Coins</a>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/400x300?text=E-Book+Bundle" alt="E-Book Bundle">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">Learning E-Book Bundle</div>
+                        <div class="product-price"><div class="product-coin"></div> 200 Coins</div>
+                        <a href="#" class="btn btn-primary">Buy with Coins</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Dashboard Link -->
+    <section class="dashboard-preview" id="dashboard">
+        <div class="container text-center">
+            <h2>Access Your Personal Dashboard</h2>
+            <p>Track your learning progress, manage your coin balance, view transaction history, and browse available rewards in one place.</p>
+            <a href="#user-dashboard" class="btn btn-secondary">Go to My Dashboard</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="logo">
+                        <div class="logo-coin">$</div>
+                        <div class="logo-text">LearnRewards</div>
+                    </div>
+                    <p>Revolutionizing education with our unique reward system. Learn, earn, and redeem!</p>
+                    <div class="social-icons">
+                        <a href="#facebook" class="social-icon">f</a>
+                        <a href="#twitter" class="social-icon">t</a>
+                        <a href="#linkedin" class="social-icon">in</a>
+                        <a href="#instagram" class="social-icon">ig</a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#store">Store</a></li>
+                        <li><a href="#dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Courses</a></li>
+                        <li><a href="#">Free Tutorials</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Copyright Notice</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 LearnRewards. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Navigation Toggle with Animation
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        
+        hamburger.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            this.textContent = this.textContent === '☰' ? '✕' : '☰';
+            
+            // Animate menu items when opening
+            if (navLinks.classList.contains('active')) {
+                const items = navLinks.querySelectorAll('li');
+                items.forEach((item, index) => {
+                    item.style.transitionDelay = `${index * 0.1}s`;
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                });
+            }
+        });
+        
+        // Header scroll effects
+        let lastScroll = 0;
+        const header = document.getElementById('mainHeader');
+        
+        window.addEventListener('scroll', function() {
+            const currentScroll = window.pageYOffset;
+            
+            // Show/hide header on scroll direction
+            if (currentScroll <= 0) {
+                header.classList.remove('hidden');
+            } else if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+            
+            // Add scrolled class for styling
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
+        
+        // Create particle effects
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random size
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 15 + 10;
+                const delay = Math.random() * 5;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                // Random color variation
+                const hue = 45 + Math.random() * 15; // Yellow range
+                particle.style.backgroundColor = `hsla(${hue}, 100%, 60%, 0.7)`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Animate elements on scroll
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.step-card, .feature-card, .product-card, .footer-column');
+            const windowHeight = window.innerHeight;
+            const scrollY = window.scrollY;
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top + scrollY;
+                const scrollPosition = scrollY + windowHeight * 0.8;
+                
+                if (scrollPosition > elementPosition && !element.classList.contains('animated')) {
+                    element.classList.add('animated');
+                }
+            });
+            
+            // Animate progress bar
+            const progressTracker = document.querySelector('.progress-tracker');
+            if (progressTracker && !progressTracker.classList.contains('animated')) {
+                const trackerPosition = progressTracker.getBoundingClientRect().top;
+                if (trackerPosition < windowHeight * 0.8) {
+                    progressTracker.classList.add('animated');
+                    document.querySelector('.progress-bar').style.width = '65%';
+                }
+            }
+        }
+        
+        // Smooth scrolling for anchor links with offset
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('href') !== '#') {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Calculate offset (accounting for fixed header)
+                        const offset = 90;
+                        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = elementPosition - offset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Close mobile menu if open
+                        navLinks.classList.remove('active');
+                        hamburger.textContent = '☰';
+                    }
+                }
+            });
+        });
+        
+        // Button click animations
+        function setupButtonAnimations() {
+            // Login button
+            const loginBtn = document.querySelector('.nav-links li:last-child a');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.add('animate__animated', 'animate__rubberBand');
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__rubberBand');
+                        alert('Login functionality would open a login form here.');
+                    }, 500);
+                });
+            }
+            
+            // Start Earning Coins button in Hero section
+            const startEarningBtn = document.querySelector('.hero-content .btn');
+            if (startEarningBtn) {
+                startEarningBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.add('animate__animated', 'animate__rubberBand');
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__rubberBand');
+                        const targetElement = document.querySelector('#how-it-works');
+                        if (targetElement) {
+                            const offset = 90;
+                            const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            const offsetPosition = elementPosition - offset;
+                            
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                            
+                            setTimeout(() => {
+                                alert('Sign up to start earning coins! This would open a registration form.');
+                            }, 800);
+                        }
+                    }, 500);
+                });
+            }
+            
+            // Store buttons
+            const buyButtons = document.querySelectorAll('.product-info .btn-primary');
+            buyButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.add('animate__animated', 'animate__rubberBand');
+                    const productName = this.closest('.product-info').querySelector('.product-title').textContent;
+                    const coinPrice = this.closest('.product-info').querySelector('.product-price').textContent.match(/\d+/)[0];
+                    
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__rubberBand');
+                        alert(`You are purchasing ${productName} for ${coinPrice} coins. This would proceed to checkout.`);
+                    }, 500);
+                });
+            });
+            
+            // Not enough coins button
+            const disabledButtons = document.querySelectorAll('.product-info .btn-disabled');
+            disabledButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.add('animate__animated', 'animate__shakeX');
+                    const productName = this.closest('.product-info').querySelector('.product-title').textContent;
+                    const coinPrice = this.closest('.product-info').querySelector('.product-price').textContent.match(/\d+/)[0];
+                    
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__shakeX');
+                        alert(`You need more coins to purchase ${productName} (${coinPrice} coins required). Complete more courses to earn coins!`);
+                    }, 500);
+                });
+            });
+            
+            // Dashboard button
+            const dashboardBtn = document.querySelector('.dashboard-preview .btn');
+            if (dashboardBtn) {
+                dashboardBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.add('animate__animated', 'animate__rubberBand');
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__rubberBand');
+                        alert('This would take you to your personal dashboard where you can track your progress and coin balance.');
+                    }, 500);
+                });
+            }
+            
+            // Social media icons
+            const socialIcons = document.querySelectorAll('.social-icons .social-icon');
+            socialIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const platform = this.textContent;
+                    let platformName;
+                    
+                    switch(platform) {
+                        case 'f': platformName = 'Facebook'; break;
+                        case 't': platformName = 'Twitter'; break;
+                        case 'in': platformName = 'LinkedIn'; break;
+                        case 'ig': platformName = 'Instagram'; break;
+                        default: platformName = 'social media';
+                    }
+                    
+                    alert(`This would take you to our ${platformName} page.`);
+                });
+            });
+            
+            // Footer quick links
+            const footerLinks = document.querySelectorAll('.footer-links a');
+            footerLinks.forEach(link => {
+                if (link.getAttribute('href') === '#') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const linkText = this.textContent;
+                        if (linkText === 'Home') {
+                            window.scrollTo({top: 0, behavior: 'smooth'});
+                        } else {
+                            alert(`This would take you to the ${linkText} page.`);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Add hover effect to cards
+        function setupCardHoverEffects() {
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.classList.add('animate__animated', 'animate__pulse');
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.classList.remove('animate__animated', 'animate__pulse');
+                });
+            });
+            
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.classList.add('animate__animated', 'animate__pulse');
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.classList.remove('animate__animated', 'animate__pulse');
+                });
+            });
+        }
+        
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            setupButtonAnimations();
+            setupCardHoverEffects();
+            
+            // Initial check on load
+            animateOnScroll();
+            
+            // Check on scroll
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // Add animation to logo coin on hover
+            const logoCoin = document.querySelector('.logo-coin');
+            if (logoCoin) {
+                const logo = document.querySelector('.logo');
+                logo.addEventListener('mouseenter', function() {
+                    logoCoin.style.animation = 'coinBounce 0.8s ease infinite alternate, coinSpin 8s infinite linear';
+                });
+                
+                logo.addEventListener('mouseleave', function() {
+                    logoCoin.style.animation = 'coinSpin 8s infinite linear';
+                });
+            }
+            
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Remove any existing ripple
+                    const existingRipple = this.querySelector('.ripple');
+                    if (existingRipple) {
+                        existingRipple.remove();
+                    }
+                    
+                    // Create new ripple
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    
+                    // Position the ripple
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    // Remove ripple after animation
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

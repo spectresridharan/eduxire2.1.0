@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduDash - Modern Educational Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+      color: #fff;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-in forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    body.light-mode {
+      background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #fefce8 100%);
+      color: #1e293b;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: cardEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    
+    @keyframes cardEnter {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .light-mode .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .schedule-card {
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    
+    .schedule-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background-color: rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+    
+    .light-mode .progress-bar {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease-out;
+    }
+    
+    .radial-progress {
+      position: relative;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    
+    .notification-panel {
+      position: absolute;
+      right: 0;
+      top: 120%;
+      margin-top: 8px;
+      width: 320px;
+      max-height: 0;
+      overflow: hidden;
+      z-index: 50;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    
+    .notification-panel.show {
+      max-height: 400px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .theme-blue { color: #3b82f6; }
+    .theme-yellow { color: #f59e0b; }
+    .theme-green { color: #10b981; }
+    .theme-red { color: #ef4444; }
+    
+    .bg-theme-blue { background-color: #3b82f6; }
+    .bg-theme-yellow { background-color: #f59e0b; }
+    .bg-theme-green { background-color: #10b981; }
+    .bg-theme-red { background-color: #ef4444; }
+
+    .blue-soft-bg { background-color: rgba(59, 130, 246, 0.15); }
+    .yellow-soft-bg { background-color: rgba(245, 158, 11, 0.15); }
+    .green-soft-bg { background-color: rgba(16, 185, 129, 0.15); }
+    .red-soft-bg { background-color: rgba(239, 68, 68, 0.15); }
+    
+    .light-mode .blue-soft-bg { background-color: rgba(59, 130, 246, 0.1); }
+    .light-mode .yellow-soft-bg { background-color: rgba(245, 158, 11, 0.1); }
+    .light-mode .green-soft-bg { background-color: rgba(16, 185, 129, 0.1); }
+    .light-mode .red-soft-bg { background-color: rgba(239, 68, 68, 0.1); }
+    
+    /* Button animations */
+    .nav-button {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .nav-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%, -50%);
+      transform-origin: 50% 50%;
+    }
+    
+    .nav-button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+    
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+    
+    /* Task completion animation */
+    @keyframes checkmark {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      80% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .task-checkbox.checked {
+      background-color: #10b981 !important;
+      border-color: #10b981 !important;
+    }
+    
+    .task-checkbox.checked svg {
+      animation: checkmark 0.4s ease-out;
+    }
+    
+    /* Pulse animation for notification badge */
+    @keyframes pulse {
+      0% {
+        transform: translateX(1/2) translateY(-1/2) scale(1);
+      }
+      50% {
+        transform: translateX(1/2) translateY(-1/2) scale(1.2);
+      }
+      100% {
+        transform: translateX(1/2) translateY(-1/2) scale(1);
+      }
+    }
+    
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .sidebar {
+        order: 2;
+      }
+      
+      .main-content {
+        order: 1;
+      }
+      
+      .right-sidebar {
+        order: 3;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr 3fr 1fr;
+        gap: 1.5rem;
+      }
+    }
+    
+    /* Neumorphic elements in light mode */
+    .light-mode .neumorphic {
+      background: #f0f5ff;
+      box-shadow: 8px 8px 16px #d1d9f0, -8px -8px 16px #ffffff;
+      border-radius: 16px;
+    }
+    
+    /* SVG Circular progress bar styles */
+    .svg-progress-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+    
+    .svg-progress-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.2);
+      stroke-width: 8;
+    }
+    
+    .light-mode .svg-progress-bg {
+      stroke: rgba(0, 0, 0, 0.1);
+    }
+    
+    .svg-progress-fill {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      stroke-dashoffset: 289.02652413026095;
+      transition: stroke-dashoffset 1.5s ease-out;
+    }
+    
+    .svg-progress-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+    
+    /* Page transition */
+    .page-transition {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #1e3a8a;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .page-transition.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Animate cards sequentially */
+    .glass-card:nth-child(1) { animation-delay: 0.1s; }
+    .glass-card:nth-child(2) { animation-delay: 0.2s; }
+    .glass-card:nth-child(3) { animation-delay: 0.3s; }
+    .glass-card:nth-child(4) { animation-delay: 0.4s; }
+    .glass-card:nth-child(5) { animation-delay: 0.5s; }
+  </style>
+</head>
+<body>
+  <!-- Page Transition Overlay -->
+  <div class="page-transition" id="pageTransition">
+    <div class="spinner"></div>
+  </div>
+  
+  <div class="min-h-screen p-4 sm:p-8">
+    <div class="container mx-auto max-w-6xl">
+      <!-- Top Navigation -->
+      <div class="flex justify-between items-center mb-8">
+        <div class="flex items-center space-x-2">
+          <i data-feather="book-open" class="theme-blue h-8 w-8"></i>
+          <h1 class="text-2xl font-bold">EduDash</h1>
+        </div>
+        <div class="flex items-center space-x-6">
+          <button id="theme-toggle" class="p-2 rounded-full bg-blue-800 text-blue-200 nav-button">
+            <i data-feather="sun" class="h-5 w-5"></i>
+          </button>
+          <div class="relative">
+            <button id="notification-toggle" class="p-2 rounded-full bg-blue-800 text-blue-200 relative nav-button">
+              <i data-feather="bell" class="h-5 w-5"></i>
+              <span id="notification-badge" class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center pulse">3</span>
+            </button>
+            
+            <div id="notification-panel" class="notification-panel glass-card">
+              <div class="p-4 border-b border-gray-600 border-opacity-30">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold">Notifications</h3>
+                  <button id="close-notifications">
+                    <i data-feather="x" class="h-4 w-4 text-gray-300"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="p-4 max-h-96 overflow-y-auto">
+                <div class="mb-3 p-3 rounded-lg blue-soft-bg">
+                  <p class="text-sm">New assignment posted in Mathematics</p>
+                  <p class="text-xs mt-1 opacity-70">1 hour ago</p>
+                </div>
+                <div class="mb-3 p-3 rounded-lg blue-soft-bg">
+                  <p class="text-sm">Physics exam scheduled for next week</p>
+                  <p class="text-xs mt-1 opacity-70">3 hours ago</p>
+                </div>
+                <div class="mb-3 p-3 rounded-lg blue-soft-bg opacity-70">
+                  <p class="text-sm">CS instructor shared new lecture notes</p>
+                  <p class="text-xs mt-1 opacity-70">Yesterday</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="hidden md:block">
+              <p class="text-sm font-medium">Alex Johnson</p>
+              <p class="text-xs opacity-70">Student</p>
+            </div>
+            <div class="h-10 w-10 rounded-full overflow-hidden ring-2 ring-blue-500 transition-transform hover:scale-110">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="h-full w-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Content Grid -->
+      <div class="dashboard-grid grid">
+        <!-- Left Sidebar -->
+        <div class="sidebar space-y-6">
+          <div class="glass-card p-6">
+            <div class="flex flex-col items-center text-center">
+              <div class="h-20 w-20 rounded-full overflow-hidden ring-4 ring-blue-500 mb-4 transition-transform hover:scale-105">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="h-full w-full object-cover" />
+              </div>
+              <h2 class="text-xl font-bold mb-1">Alex Johnson</h2>
+              <div class="flex items-center text-yellow-500 mb-2">
+                <i data-feather="coffee" class="h-4 w-4 mr-1"></i>
+                <span class="text-sm">12 Day Streak</span>
+              </div>
+              <p class="text-sm italic opacity-80">"Learning is a journey, not a destination."</p>
+            </div>
+          </div>
+          
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-semibold mb-4">Learning Materials</h3>
+            <div class="flex flex-col space-y-3">
+              <a href="#notes" class="flex items-center p-3 rounded-lg blue-soft-bg hover:bg-blue-600 hover:text-white transition-all duration-300 nav-button">
+                <i data-feather="file-text" class="h-5 w-5 mr-3 theme-blue"></i>
+                <span>Notes</span>
+              </a>
+              <a href="#videos" class="flex items-center p-3 rounded-lg blue-soft-bg hover:bg-blue-600 hover:text-white transition-all duration-300 nav-button">
+                <i data-feather="video" class="h-5 w-5 mr-3 theme-blue"></i>
+                <span>Video Lectures</span>
+              </a>
+              <a href="#flashcards" class="flex items-center p-3 rounded-lg blue-soft-bg hover:bg-blue-600 hover:text-white transition-all duration-300 nav-button">
+                <i data-feather="bookmark" class="h-5 w-5 mr-3 theme-blue"></i>
+                <span>Flashcards</span>
+              </a>
+              <a href="#quizzes" class="flex items-center p-3 rounded-lg blue-soft-bg hover:bg-blue-600 hover:text-white transition-all duration-300 nav-button">
+                <i data-feather="award" class="h-5 w-5 mr-3 theme-blue"></i>
+                <span>Practice Quizzes</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Main Dashboard -->
+        <div class="main-content space-y-6">
+          <!-- Welcome Header -->
+          <div class="glass-card p-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h2 class="text-2xl font-bold mb-2">Welcome back, Alex!</h2>
+                <p class="opacity-80">Ready for another productive day of learning?</p>
+              </div>
+              <div class="hidden md:block">
+                <div class="px-4 py-2 rounded-full bg-blue-800 text-blue-200">
+                  <i data-feather="calendar" class="h-5 w-5 inline-block mr-2"></i>
+                  <span class="font-medium">Thursday, May 8</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Progress Tracker -->
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-semibold mb-4">Progress Tracker</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div class="flex flex-col items-center">
+                <div class="svg-progress-container">
+                  <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle class="svg-progress-bg" cx="50" cy="50" r="46"></circle>
+                    <circle class="svg-progress-fill theme-blue" cx="50" cy="50" r="46" stroke-dasharray="289.02652413026095" stroke-dashoffset="92.48848772168351"></circle>
+                    <text class="svg-progress-text" x="50" y="50">68%</text>
+                  </svg>
+                </div>
+                <p class="mt-2 text-sm opacity-80">Weekly Progress</p>
+              </div>
+              <div class="flex flex-col items-center">
+                <div class="svg-progress-container">
+                  <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle class="svg-progress-bg" cx="50" cy="50" r="46"></circle>
+                    <circle class="svg-progress-fill theme-yellow" cx="50" cy="50" r="46" stroke-dasharray="289.02652413026095" stroke-dashoffset="80.92742915447305"></circle>
+                    <text class="svg-progress-text" x="50" y="50">72%</text>
+                  </svg>
+                </div>
+                <p class="mt-2 text-sm opacity-80">Monthly Progress</p>
+              </div>
+              <div class="flex flex-col items-center">
+                <div class="svg-progress-container">
+                  <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle class="svg-progress-bg" cx="50" cy="50" r="46"></circle>
+                    <circle class="svg-progress-fill theme-green" cx="50" cy="50" r="46" stroke-dasharray="289.02652413026095" stroke-dashoffset="72.25663103256524"></circle>
+                    <text class="svg-progress-text" x="50" y="50">75%</text>
+                  </svg>
+                </div>
+                <p class="mt-2 text-sm opacity-80">Overall Completion</p>
+              </div>
+            </div>
+            
+            <h4 class="text-md font-medium mb-3">Course Progress</h4>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-sm font-medium opacity-80">Mathematics</span>
+                  <span class="text-sm font-medium opacity-80">75%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill bg-theme-blue" style="width: 75%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-sm font-medium opacity-80">Physics</span>
+                  <span class="text-sm font-medium opacity-80">60%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill bg-theme-yellow" style="width: 60%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-sm font-medium opacity-80">Computer Science</span>
+                  <span class="text-sm font-medium opacity-80">85%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill bg-theme-green" style="width: 85%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-sm font-medium opacity-80">Literature</span>
+                  <span class="text-sm font-medium opacity-80">45%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill bg-red-500" style="width: 45%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Today's Schedule -->
+          <div class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Today's Schedule</h3>
+              <a href="#schedule" class="text-sm flex items-center theme-blue hover:text-blue-300 nav-button">
+                <span>View All</span>
+                <i data-feather="chevron-right" class="h-4 w-4 ml-1"></i>
+              </a>
+            </div>
+            <div class="space-y-4">
+              <a href="#math-class" class="block p-4 rounded-lg blue-soft-bg schedule-card hover:bg-blue-600 hover:text-white">
+                <div class="flex justify-between">
+                  <div>
+                    <h4 class="font-semibold">Mathematics</h4>
+                    <p class="text-sm opacity-80">Calculus II</p>
+                  </div>
+                  <div class="flex items-center">
+                    <i data-feather="clock" class="h-4 w-4 mr-1 opacity-80"></i>
+                    <span class="text-sm opacity-80">9:00 - 10:30 AM</span>
+                  </div>
+                </div>
+              </a>
+              <a href="#physics-class" class="block p-4 rounded-lg yellow-soft-bg schedule-card hover:bg-yellow-600 hover:text-white">
+                <div class="flex justify-between">
+                  <div>
+                    <h4 class="font-semibold">Physics</h4>
+                    <p class="text-sm opacity-80">Quantum Mechanics</p>
+                  </div>
+                  <div class="flex items-center">
+                    <i data-feather="clock" class="h-4 w-4 mr-1 opacity-80"></i>
+                    <span class="text-sm opacity-80">11:00 - 12:30 PM</span>
+                  </div>
+                </div>
+              </a>
+              <a href="#cs-class" class="block p-4 rounded-lg green-soft-bg schedule-card hover:bg-green-600 hover:text-white">
+                <div class="flex justify-between">
+                  <div>
+                    <h4 class="font-semibold">Computer Science</h4>
+                    <p class="text-sm opacity-80">Data Structures</p>
+                  </div>
+                  <div class="flex items-center">
+                    <i data-feather="clock" class="h-4 w-4 mr-1 opacity-80"></i>
+                    <span class="text-sm opacity-80">2:00 - 3:30 PM</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Sidebar -->
+        <div class="right-sidebar space-y-6">
+          <!-- Performance Analytics -->
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-semibold mb-4">Performance Analytics</h3>
+            <div class="flex flex-col items-center mb-4">
+              <div class="text-3xl font-bold mb-1">3.8</div>
+              <p class="text-sm opacity-80">Current GPA</p>
+            </div>
+            <div class="flex justify-between items-center mb-4 px-4 py-2 rounded-lg blue-soft-bg">
+              <div class="flex items-center">
+                <i data-feather="award" class="h-5 w-5 mr-2 text-yellow-500"></i>
+                <span class="font-medium">Rank</span>
+              </div>
+              <span class="font-semibold">7/120</span>
+            </div>
+            <div class="space-y-3">
+              <a href="#math-grades" class="block">
+                <div class="flex justify-between items-center hover:bg-blue-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <span class="text-sm opacity-80">Mathematics</span>
+                  <div class="flex items-center">
+                    <span class="text-sm font-medium mr-2">A-</span>
+                    <span class="text-xs px-2 py-1 rounded blue-soft-bg">92%</span>
+                  </div>
+                </div>
+              </a>
+              <a href="#physics-grades" class="block">
+                <div class="flex justify-between items-center hover:bg-blue-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <span class="text-sm opacity-80">Physics</span>
+                  <div class="flex items-center">
+                    <span class="text-sm font-medium mr-2">B+</span>
+                    <span class="text-xs px-2 py-1 rounded blue-soft-bg">87%</span>
+                  </div>
+                </div>
+              </a>
+              <a href="#cs-grades" class="block">
+                <div class="flex justify-between items-center hover:bg-blue-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <span class="text-sm opacity-80">Computer Science</span>
+                  <div class="flex items-center">
+                    <span class="text-sm font-medium mr-2">A</span>
+                    <span class="text-xs px-2 py-1 rounded blue-soft-bg">95%</span>
+                  </div>
+                </div>
+              </a>
+              <a href="#lit-grades" class="block">
+                <div class="flex justify-between items-center hover:bg-blue-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <span class="text-sm opacity-80">Literature</span>
+                  <div class="flex items-center">
+                    <span class="text-sm font-medium mr-2">B</span>
+                    <span class="text-xs px-2 py-1 rounded blue-soft-bg">84%</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Study Recommendations -->
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-semibold mb-4">Study Recommendations</h3>
+            <div class="space-y-3">
+              <a href="#integration-parts" class="block">
+                <div class="flex items-start hover:bg-red-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <div class="p-2 rounded-full mr-3 red-soft-bg">
+                    <i data-feather="alert-circle" class="h-4 w-4 theme-red"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium">Integration by Parts</p>
+                    <p class="text-xs opacity-70">Mathematics · High Priority</p>
+                  </div>
+                </div>
+              </a>
+              <a href="#quantum-waves" class="block">
+                <div class="flex items-start hover:bg-yellow-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <div class="p-2 rounded-full mr-3 yellow-soft-bg">
+                    <i data-feather="alert-circle" class="h-4 w-4 theme-yellow"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium">Quantum Wave Functions</p>
+                    <p class="text-xs opacity-70">Physics · Medium Priority</p>
+                  </div>
+                </div>
+              </a>
+              <a href="#bst" class="block">
+                <div class="flex items-start hover:bg-green-500 hover:bg-opacity-20 p-2 rounded-lg transition-colors">
+                  <div class="p-2 rounded-full mr-3 green-soft-bg">
+                    <i data-feather="alert-circle" class="h-4 w-4 theme-green"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium">Binary Search Trees</p>
+                    <p class="text-xs opacity-70">Computer Science · Low Priority</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <a href="#recommendations" class="block mt-4 w-full p-2 rounded-lg flex items-center justify-center bg-blue-800 hover:bg-blue-700 text-white nav-button">
+              <i data-feather="target" class="h-4 w-4 mr-2"></i>
+              <span>View All Recommendations</span>
+            </a>
+          </div>
+          
+          <!-- To-Do List -->
+          <div class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">To-Do List</h3>
+              <button class="p-1 rounded-full bg-blue-800 text-blue-200 hover:bg-blue-700 nav-button" id="add-task">
+                <i data-feather="plus-circle" class="h-5 w-5"></i>
+              </button>
+            </div>
+            <div class="space-y-3" id="todo-list">
+              <div class="p-3 rounded-lg blue-soft-bg flex items-start task-item" data-id="1">
+                <button class="task-checkbox p-1 rounded-full mr-3 flex-shrink-0 border border-gray-600 hover:border-blue-500">
+                  <!-- Check icon appears when toggled -->
+                </button>
+                <div class="flex-grow">
+                  <p class="font-medium task-text">Complete Mathematics Assignment</p>
+                  <div class="flex items-center mt-1">
+                    <span class="text-xs mr-2 opacity-70">Today</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full red-soft-bg theme-red">high</span>
+                  </div>
+                </div>
+              </div>
+              <div class="p-3 rounded-lg blue-soft-bg flex items-start task-item" data-id="2">
+                <button class="task-checkbox p-1 rounded-full mr-3 flex-shrink-0 border border-gray-600 hover:border-blue-500">
+                  <!-- Check icon appears when toggled -->
+                </button>
+                <div class="flex-grow">
+                  <p class="font-medium task-text">Prepare Physics Presentation</p>
+                  <div class="flex items-center mt-1">
+                    <span class="text-xs mr-2 opacity-70">Tomorrow</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full yellow-soft-bg theme-yellow">medium</span>
+                  </div>
+                </div>
+              </div>
+              <div class="p-3 rounded-lg blue-soft-bg flex items-start task-item completed" data-id="3">
+                <button class="task-checkbox p-1 rounded-full mr-3 flex-shrink-0 bg-green-500 text-white flex items-center justify-center">
+                  <i data-feather="check" class="h-4 w-4"></i>
+                </button>
+                <div class="flex-grow">
+                  <p class="font-medium task-text">Submit CS Project Proposal</p>
+                  <div class="flex items-center mt-1">
+                    <span class="text-xs mr-2 opacity-70">3 days</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full green-soft-bg theme-green">low</span>
+                  </div>
+                </div>
+              </div>
+              <div class="p-3 rounded-lg blue-soft-bg flex items-start task-item" data-id="4">
+                <button class="task-checkbox p-1 rounded-full mr-3 flex-shrink-0 border border-gray-600 hover:border-blue-500">
+                  <!-- Check icon appears when toggled -->
+                </button>
+                <div class="flex-grow">
+                  <p class="font-medium task-text">Literature Essay Draft</p>
+                  <div class="flex items-center mt-1">
+                    <span class="text-xs mr-2 opacity-70">5 days</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full yellow-soft-bg theme-yellow">medium</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="#study-session" class="block mt-4 w-full p-2 rounded-lg flex items-center justify-center bg-blue-800 hover:bg-blue-700 text-white nav-button">
+              <i data-feather="play-circle" class="h-4 w-4 mr-2"></i>
+              <span>Start Study Session</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize Feather Icons and animations
+    document.addEventListener('DOMContentLoaded', function() {
+      feather.replace();
+      AOS.init();
+      
+      // Theme toggling
+      const themeToggle = document.getElementById('theme-toggle');
+      const body = document.body;
+      const sunIcon = themeToggle.querySelector('svg');
+      
+      themeToggle.addEventListener('click', function() {
+        body.classList.toggle('light-mode');
+        
+        if (body.classList.contains('light-mode')) {
+          themeToggle.classList.remove('bg-blue-800', 'text-blue-200');
+          themeToggle.classList.add('bg-blue-100', 'text-blue-600');
+          sunIcon.innerHTML = feather.icons['moon'].toSvg();
+        } else {
+          themeToggle.classList.add('bg-blue-800', 'text-blue-200');
+          themeToggle.classList.remove('bg-blue-100', 'text-blue-600');
+          sunIcon.innerHTML = feather.icons['sun'].toSvg();
+        }
+      });
+      
+      // Notification panel toggle
+      const notificationToggle = document.getElementById('notification-toggle');
+      const notificationPanel = document.getElementById('notification-panel');
+      const closeNotifications = document.getElementById('close-notifications');
+      
+      notificationToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notificationPanel.classList.toggle('show');
+      });
+      
+      closeNotifications.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notificationPanel.classList.remove('show');
+      });
+      
+      // Close notification panel when clicking outside
+      document.addEventListener('click', function() {
+        notificationPanel.classList.remove('show');
+      });
+      
+      // Prevent panel from closing when clicking inside it
+      notificationPanel.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Task completion functionality
+      const taskCheckboxes = document.querySelectorAll('.task-checkbox:not(.completed)');
+      taskCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('click', function() {
+          const taskItem = this.closest('.task-item');
+          const checkboxIcon = this;
+          
+          // Create check icon
+          const checkIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          checkIcon.setAttribute('class', 'h-4 w-4');
+          checkIcon.innerHTML = feather.icons['check'].toSvg();
+          
+          // Animate completion
+          this.classList.add('checked');
+          this.innerHTML = '';
+          this.appendChild(checkIcon);
+          
+          setTimeout(() => {
+            taskItem.classList.add('completed');
+          }, 300);
+        });
+      });
+      
+      // Add new task functionality
+      const addTaskButton = document.getElementById('add-task');
+      const todoList = document.getElementById('todo-list');
+      
+      addTaskButton.addEventListener('click', function() {
+        const newTaskId = Date.now();
+        const newTask = document.createElement('div');
+        newTask.className = 'p-3 rounded-lg blue-soft-bg flex items-start task-item';
+        newTask.dataset.id = newTaskId;
+        newTask.innerHTML = `
+          <button class="task-checkbox p-1 rounded-full mr-3 flex-shrink-0 border border-gray-600 hover:border-blue-500">
+          </button>
+          <div class="flex-grow">
+            <p class="font-medium task-text">New Task</p>
+            <div class="flex items-center mt-1">
+              <span class="text-xs mr-2 opacity-70">Today</span>
+              <span class="text-xs px-2 py-0.5 rounded-full yellow-soft-bg theme-yellow">medium</span>
+            </div>
+          </div>
+        `;
+        
+        // Add animation to new task
+        newTask.style.opacity = '0';
+        newTask.style.transform = 'translateY(20px)';
+        todoList.prepend(newTask);
+        
+        // Animate in
+        setTimeout(() => {
+          newTask.style.opacity = '1';
+          newTask.style.transform = 'translateY(0)';
+          newTask.style.transition = 'all 0.3s ease';
+        }, 10);
+        
+        // Add event listener to new checkbox
+        const newCheckbox = newTask.querySelector('.task-checkbox');
+        newCheckbox.addEventListener('click', function() {
+          const taskItem = this.closest('.task-item');
+          const checkboxIcon = this;
+          
+          // Create check icon
+          const checkIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          checkIcon.setAttribute('class', 'h-4 w-4');
+          checkIcon.innerHTML = feather.icons['check'].toSvg();
+          
+          // Animate completion
+          this.classList.add('checked');
+          this.innerHTML = '';
+          this.appendChild(checkIcon);
+          
+          setTimeout(() => {
+            taskItem.classList.add('completed');
+          }, 300);
+        });
+      });
+      
+      // Page transition for navigation
+      const navButtons = document.querySelectorAll('a[href^="#"]');
+      const pageTransition = document.getElementById('pageTransition');
+      
+      navButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = this.getAttribute('href');
+          
+          // Show page transition
+          pageTransition.classList.add('active');
+          
+          // Simulate loading
+          setTimeout(() => {
+            // In a real app, this would navigate to the new page
+            // For demo, we'll just scroll to the section if it exists
+            if (target !== '#') {
+              const section = document.querySelector(target);
+              if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+              }
+            }
+            
+            // Hide transition
+            setTimeout(() => {
+              pageTransition.classList.remove('active');
+            }, 500);
+          }, 1000);
+        });
+      });
+      
+      // Animate progress bars on load
+      setTimeout(() => {
+        document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+          const width = bar.style.width;
+          bar.style.width = '0';
+          setTimeout(() => {
+            bar.style.width = width;
+          }, 100);
+        });
+      }, 500);
+      
+      // Animate circular progress bars on load
+      setTimeout(() => {
+        document.querySelectorAll('.svg-progress-fill').forEach(circle => {
+          const offset = circle.getAttribute('stroke-dashoffset');
+          circle.style.strokeDashoffset = '289.02652413026095';
+          setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+          }, 100);
+        });
+      }, 500);
+    });
+  </script>
+</body>
+</html>

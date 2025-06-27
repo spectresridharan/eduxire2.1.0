@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Physics Videos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      text-align: center;
+      background: linear-gradient(135deg, #000000, #8A2BE2, #FFFFFF);
+      background-size: 200% 200%;
+      animation: gradientWave 8s ease infinite;
+    }
+
+    @keyframes gradientWave {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5rem;
+    }
+    
+    #video-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+
+    .video-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: scale(1.05);
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      height: 180px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .video-card p {
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      margin-top: 10px;
+    }
+
+    /* Video Modal Styles */
+    .video-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .video-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .video-content {
+      width: 90%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .video-modal.active .video-content {
+      transform: scale(1);
+    }
+
+    .video-player {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+    }
+
+    .video-player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .ai-sidebar {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+
+    .ai-section {
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .ai-section h3 {
+      margin-top: 0;
+      color: #ffdb58;
+    }
+
+    textarea {
+      width: 90%;
+      min-height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      color: white;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button {
+      background: #ffdb58;
+      color: black;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      transition: background 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      background: #e6c33b;
+    }
+
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #ffdb58;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #loadMore {
+      background: #ffdb58;
+      color: black;
+      font-size: 1rem;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px auto;
+      display: none;
+      transition: background 0.3s ease-in-out;
+    }
+
+    #loadMore:hover {
+      background: #e6c33b;
+    }
+
+    .quiz-question {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .quiz-options {
+      margin-left: 15px;
+    }
+
+    .quiz-option {
+      margin-bottom: 5px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .quiz-option:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .quiz-option.correct {
+      background: rgba(0, 255, 0, 0.2);
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(255, 0, 0, 0.2);
+    }
+
+    .quiz-result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .tab-buttons {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .tab-button {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background: #ffdb58;
+      color: black;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .video-content {
+        grid-template-columns: 1fr;
+        width: 95%;
+      }
+      
+      .video-player {
+        padding-bottom: 56.25%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/000000/rocket.png" sizes="48x48">
+  <h1>Physics Videos</h1>
+  <div id="video-container">Loading... </div>
+  <button id="loadMore">Load More</button>
+
+  <!-- Video Modal -->
+  <div class="video-modal" id="videoModal">
+    <div class="video-content">
+      <div class="video-player">
+        <iframe id="modalVideoFrame" allowfullscreen></iframe>
+      </div>
+      <div class="ai-sidebar">
+        <div class="tab-buttons">
+          <button class="tab-button active" data-tab="summary">Summary</button>
+          <button class="tab-button" data-tab="notes">Notes</button>
+          <button class="tab-button" data-tab="quiz">Quiz</button>
+        </div>
+        
+        <div id="summaryTab" class="tab-content active">
+          <div class="ai-section">
+            <h3>AI Video Summary</h3>
+            <div id="summaryLoader" class="loader" style="display: none;"></div>
+            <p id="videoSummary">Click "Generate Summary" to get AI-powered summary of this video</p>
+            <button id="generateSummary">Generate Summary</button>
+            <button id="simplifySummary" style="display: none;">Simplify Summary</button>
+          </div>
+        </div>
+        
+        <div id="notesTab" class="tab-content">
+          <div class="ai-section">
+            <h3>Smart Notes</h3>
+            <textarea id="userNotes" placeholder="Take your notes here..."></textarea>
+            <button id="saveNotes">Save Notes</button>
+            <button id="generateNotes">AI Suggest Notes</button>
+            <button id="organizeNotes" style="display: none;">Organize Notes</button>
+          </div>
+        </div>
+        
+        <div id="quizTab" class="tab-content">
+          <div class="ai-section">
+            <h3>Quiz Generator</h3>
+            <div id="quizLoader" class="loader" style="display: none;"></div>
+            <div id="quizContainer">
+              <p>Generate a quiz based on this video content</p>
+              <button id="generateQuiz">Generate Quiz</button>
+              <select id="quizDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div id="quizResults" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="close-btn" id="closeModal">×</button>
+  </div>
+
+  <script>
+    // Configuration
+    const GEMINI_API_KEY = 'AIzaSyC9UTdGhyMKQptXCtSc7A3dSktIz1PXWE0'; // Your Gemini API key
+    const YOUTUBE_API_KEY = 'AIzaSyDUwkRyJFo84RDDk5_tg_Bx5n95EflP0zg'; // Your YouTube API key
+    
+    // App State
+    let nextPageToken = '';
+    let isLoading = false;
+    let currentVideoId = '';
+    let currentVideoTitle = '';
+    let savedNotes = JSON.parse(localStorage.getItem('physicsVideoNotes')) || {};
+    let quizQuestions = [];
+    let currentQuizQuestion = 0;
+    let quizScore = 0;
+
+    // DOM Elements
+    const videoContainer = document.getElementById('video-container');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const videoModal = document.getElementById('videoModal');
+    const modalVideoFrame = document.getElementById('modalVideoFrame');
+    const closeModalBtn = document.getElementById('closeModal');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Summary Tab Elements
+    const generateSummaryBtn = document.getElementById('generateSummary');
+    const simplifySummaryBtn = document.getElementById('simplifySummary');
+    const summaryLoader = document.getElementById('summaryLoader');
+    const videoSummary = document.getElementById('videoSummary');
+    
+    // Notes Tab Elements
+    const userNotes = document.getElementById('userNotes');
+    const generateNotesBtn = document.getElementById('generateNotes');
+    const saveNotesBtn = document.getElementById('saveNotes');
+    const organizeNotesBtn = document.getElementById('organizeNotes');
+    
+    // Quiz Tab Elements
+    const generateQuizBtn = document.getElementById('generateQuiz');
+    const quizLoader = document.getElementById('quizLoader');
+    const quizContainer = document.getElementById('quizContainer');
+    const quizResults = document.getElementById('quizResults');
+    const quizDifficulty = document.getElementById('quizDifficulty');
+
+    // Initialize the app
+    function init() {
+      console.log("Initializing application...");
+      handleClientLoad();
+      setupEventListeners();
+    }
+
+    // YouTube API Initialization
+    function handleClientLoad() {
+      gapi.load('client', initClient);
+    }
+
+    function initClient() {
+      gapi.client.init({
+        apiKey: YOUTUBE_API_KEY
+      }).then(() => {
+        return gapi.client.load('youtube', 'v3');
+      }).then(() => {
+        fetchPhysicsVideos();
+      }).catch(error => {
+        console.error("Error initializing API client:", error);
+        videoContainer.innerText = "Failed to load videos. Please check your API key.";
+      });
+    }
+
+    // Fetch physics videos from YouTube
+    function fetchPhysicsVideos() {
+      if (isLoading) return;
+      isLoading = true;
+
+      gapi.client.youtube.search.list({
+        part: 'snippet',
+        q: 'physics basics for beginners',
+        type: 'video',
+        maxResults: 6,
+        pageToken: nextPageToken
+      }).then(response => {
+        const videos = response.result.items;
+        if (videoContainer.innerText === 'Loading...') videoContainer.innerHTML = '';
+
+        videos.forEach(video => {
+          const videoId = video.id.videoId;
+          const title = video.snippet.title;
+          const thumbnail = video.snippet.thumbnails.medium.url;
+
+          const card = document.createElement('div');
+          card.className = 'video-card';
+          card.innerHTML = `
+            <img src="${thumbnail}" alt="${title}" class="video-thumbnail">
+            <p>${title}</p>
+          `;
+          card.addEventListener('click', () => openVideoModal(videoId, title));
+          videoContainer.appendChild(card);
+        });
+
+        nextPageToken = response.result.nextPageToken || '';
+        isLoading = false;
+
+        loadMoreBtn.style.display = nextPageToken ? 'inline-block' : 'none';
+      }).catch(error => {
+        console.error("Failed to fetch videos:", error);
+        videoContainer.innerText = "Error loading videos. Please try again later.";
+        isLoading = false;
+      });
+    }
+
+    // Setup all event listeners
+    function setupEventListeners() {
+      loadMoreBtn.addEventListener('click', fetchPhysicsVideos);
+      closeModalBtn.addEventListener('click', closeVideoModal);
+      
+      // Tab switching
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab');
+          switchTab(tabId);
+        });
+      });
+      
+      // Summary tab
+      generateSummaryBtn.addEventListener('click', generateVideoSummary);
+      simplifySummaryBtn.addEventListener('click', simplifyVideoSummary);
+      
+      // Notes tab
+      generateNotesBtn.addEventListener('click', generateSuggestedNotes);
+      saveNotesBtn.addEventListener('click', saveUserNotes);
+      organizeNotesBtn.addEventListener('click', organizeUserNotes);
+      
+      // Quiz tab
+      generateQuizBtn.addEventListener('click', generateQuiz);
+    }
+
+    // Open video modal
+    function openVideoModal(videoId, title) {
+      currentVideoId = videoId;
+      currentVideoTitle = title;
+      
+      modalVideoFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      videoSummary.textContent = 'Click "Generate Summary" to get AI-powered summary of this video';
+      userNotes.value = savedNotes[videoId] || '';
+      simplifySummaryBtn.style.display = 'none';
+      organizeNotesBtn.style.display = 'none';
+      
+      // Reset quiz state
+      quizContainer.innerHTML = `
+        <p>Generate a quiz based on this video content</p>
+        <button id="generateQuiz">Generate Quiz</button>
+        <select id="quizDifficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      `;
+      quizResults.style.display = 'none';
+      document.getElementById('generateQuiz').addEventListener('click', generateQuiz);
+      
+      videoModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close video modal
+    function closeVideoModal() {
+      modalVideoFrame.src = '';
+      videoModal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Switch between tabs
+    function switchTab(tabId) {
+      tabButtons.forEach(button => {
+        button.classList.toggle('active', button.getAttribute('data-tab') === tabId);
+      });
+      
+      tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}Tab`);
+      });
+    }
+
+    // Generate video summary using Gemini API
+    async function generateVideoSummary() {
+      generateSummaryBtn.disabled = true;
+      summaryLoader.style.display = 'block';
+      videoSummary.textContent = 'Analyzing video content...';
+      
+      try {
+        const prompt = `Generate a detailed summary of a physics educational video titled "${currentVideoTitle}". 
+        Include key concepts, formulas, and important points. 
+        Format with clear headings and bullet points.`;
+        
+        const summary = await callGeminiAPI(prompt);
+        
+        if (!summary) throw new Error("Empty response from AI");
+        
+        videoSummary.innerHTML = summary.replace(/\n/g, '<br>');
+        simplifySummaryBtn.style.display = 'inline-block';
+      } catch (error) {
+        console.error("Error generating summary:", error);
+        videoSummary.textContent = "Failed to generate summary. Please try again.";
+      } finally {
+        summaryLoader.style.display = 'none';
+        generateSummaryBtn.disabled = false;
+      }
+    }
+
+    // Simplify the generated summary
+    async function simplifyVideoSummary() {
+      simplifySummaryBtn.disabled = true;
+      summaryLoader.style.display = 'block';
+      const originalSummary = videoSummary.innerHTML.replace(/<br>/g, '\n');
+      
+      try {
+        const prompt = `Simplify this physics summary for a beginner:\n\n${originalSummary}\n\n
+        Keep key concepts but explain simply with examples.`;
+        
+        const simplifiedSummary = await callGeminiAPI(prompt);
+        videoSummary.innerHTML = simplifiedSummary.replace(/\n/g, '<br>');
+      } catch (error) {
+        console.error("Error simplifying summary:", error);
+        videoSummary.innerHTML = originalSummary.replace(/\n/g, '<br>');
+      } finally {
+        summaryLoader.style.display = 'none';
+        simplifySummaryBtn.disabled = false;
+      }
+    }
+
+    // Generate suggested notes using Gemini API
+    async function generateSuggestedNotes() {
+      generateNotesBtn.disabled = true;
+      
+      try {
+        const prompt = `Generate comprehensive physics study notes about "${currentVideoTitle}". 
+        Include key concepts, formulas, definitions, and examples in organized sections.`;
+        
+        const notes = await callGeminiAPI(prompt);
+        userNotes.value = notes;
+        organizeNotesBtn.style.display = 'inline-block';
+      } catch (error) {
+        console.error("Error generating notes:", error);
+        userNotes.value = "Failed to generate notes. Please try again.";
+      } finally {
+        generateNotesBtn.disabled = false;
+      }
+    }
+
+    // Organize user notes using AI
+    async function organizeUserNotes() {
+      if (!userNotes.value.trim()) return;
+      
+      organizeNotesBtn.disabled = true;
+      const originalNotes = userNotes.value;
+      
+      try {
+        const prompt = `Organize these physics notes:\n\n${originalNotes}\n\n
+        Group related concepts, add headings, and ensure logical flow.`;
+        
+        const organizedNotes = await callGeminiAPI(prompt);
+        userNotes.value = organizedNotes;
+      } catch (error) {
+        console.error("Error organizing notes:", error);
+        userNotes.value = originalNotes;
+      } finally {
+        organizeNotesBtn.disabled = false;
+      }
+    }
+
+    // Save user notes to localStorage
+    function saveUserNotes() {
+      if (!userNotes.value.trim()) return;
+      
+      savedNotes[currentVideoId] = userNotes.value;
+      localStorage.setItem('physicsVideoNotes', JSON.stringify(savedNotes));
+      
+      // Show temporary feedback
+      const originalText = saveNotesBtn.textContent;
+      saveNotesBtn.textContent = 'Saved!';
+      setTimeout(() => {
+        saveNotesBtn.textContent = originalText;
+      }, 2000);
+    }
+
+    // Generate quiz using Gemini API
+    async function generateQuiz() {
+      const difficulty = quizDifficulty.value;
+      generateQuizBtn.disabled = true;
+      quizLoader.style.display = 'block';
+      quizContainer.innerHTML = '';
+      
+      try {
+        const prompt = `Create a ${difficulty} physics quiz with 5 multiple-choice questions.
+        Format each exactly like this:
+        Question: [question text]
+        a) [option 1]
+        b) [option 2]
+        c) [option 3]
+        d) [option 4]
+        Answer: [correct letter]`;
+        
+        const quizText = await callGeminiAPI(prompt);
+        quizQuestions = parseQuizResponse(quizText);
+        
+        if (quizQuestions.length > 0) {
+          displayQuizQuestion(0);
+        } else {
+          quizContainer.innerHTML = '<p>Failed to generate quiz. Please try again.</p>';
+        }
+      } catch (error) {
+        console.error("Error generating quiz:", error);
+        quizContainer.innerHTML = '<p>Error generating quiz. Please try again.</p>';
+      } finally {
+        quizLoader.style.display = 'none';
+        generateQuizBtn.disabled = false;
+      }
+    }
+
+    // Parse the quiz response from Gemini
+    function parseQuizResponse(text) {
+      const questions = [];
+      const questionBlocks = text.split('\n\n').filter(block => block.trim());
+      
+      for (const block of questionBlocks) {
+        const lines = block.split('\n').filter(line => line.trim());
+        if (lines.length < 6) continue;
+        
+        const question = {
+          text: lines[0].replace('Question: ', ''),
+          options: [],
+          answer: ''
+        };
+        
+        for (let i = 1; i < 5; i++) {
+          if (lines[i] && lines[i].match(/^[a-d]\) /)) {
+            question.options.push(lines[i].substring(3));
+          }
+        }
+        
+        const answerLine = lines.find(line => line.startsWith('Answer: '));
+        if (answerLine) {
+          question.answer = answerLine.replace('Answer: ', '').trim().toLowerCase();
+        }
+        
+        if (question.text && question.options.length === 4 && question.answer) {
+          questions.push(question);
+        }
+      }
+      
+      return questions;
+    }
+
+    // Display quiz question
+    function displayQuizQuestion(index) {
+      if (index >= quizQuestions.length) {
+        showQuizResults();
+        return;
+      }
+      
+      currentQuizQuestion = index;
+      const question = quizQuestions[index];
+      
+      let html = `
+        <div class="quiz-question">
+          <p>Question ${index + 1}: ${question.text}</p>
+          <div class="quiz-options">
+      `;
+      
+      ['a', 'b', 'c', 'd'].forEach((letter, i) => {
+        if (question.options[i]) {
+          html += `
+            <div class="quiz-option" data-answer="${letter}">
+              ${letter}) ${question.options[i]}
+            </div>
+          `;
+        }
+      });
+      
+      html += `</div></div>`;
+      quizContainer.innerHTML = html;
+      
+      // Add event listeners to options
+      document.querySelectorAll('.quiz-option').forEach(option => {
+        option.addEventListener('click', function() {
+          checkQuizAnswer(this.getAttribute('data-answer'), question.answer);
+        });
+      });
+    }
+
+    // Check quiz answer
+    function checkQuizAnswer(selectedAnswer, correctAnswer) {
+      const options = document.querySelectorAll('.quiz-option');
+      
+      options.forEach(option => {
+        const optionLetter = option.getAttribute('data-answer');
+        option.classList.remove('correct', 'incorrect');
+        
+        if (optionLetter === correctAnswer) {
+          option.classList.add('correct');
+        } else if (optionLetter === selectedAnswer && selectedAnswer !== correctAnswer) {
+          option.classList.add('incorrect');
+        }
+      });
+      
+      if (selectedAnswer === correctAnswer) {
+        quizScore++;
+      }
+      
+      // Move to next question after delay
+      setTimeout(() => {
+        displayQuizQuestion(currentQuizQuestion + 1);
+      }, 1500);
+    }
+
+    // Show quiz results
+    function showQuizResults() {
+      const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+      let message = '';
+      
+      if (percentage >= 80) message = 'Excellent work!';
+      else if (percentage >= 60) message = 'Good job!';
+      else if (percentage >= 40) message = 'Keep practicing!';
+      else message = 'Review the material and try again.';
+      
+      quizContainer.innerHTML = '';
+      quizResults.style.display = 'block';
+      quizResults.innerHTML = `
+        <h3>Quiz Results</h3>
+        <p>You scored ${quizScore} out of ${quizQuestions.length} (${percentage}%)</p>
+        <p>${message}</p>
+        <button id="retryQuiz">Try Again</button>
+      `;
+      
+      document.getElementById('retryQuiz').addEventListener('click', () => {
+        quizScore = 0;
+        currentQuizQuestion = 0;
+        quizResults.style.display = 'none';
+        generateQuiz();
+      });
+    }
+
+    // Call Gemini API
+  // Updated callGeminiAPI function
+async function callGeminiAPI(prompt) {
+  console.log("Calling Gemini API with prompt:", prompt.substring(0, 100) + "...");
+  
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_ACTUAL_GEMINI_API_KEY_HERE') {
+    throw new Error("Please replace the placeholder with your actual Gemini API key");
+  }
+  
+  try {
+    // Try with both possible endpoint formats
+    let endpoints = [
+      // Most recent format
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      // Alternative format
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`
+    ];
+    
+    let response = null;
+    let usedEndpoint = null;
+    let errorMessages = [];
+    
+    // Try each endpoint
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Trying endpoint: ${endpoint.split('?')[0]}`);
+        
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }],
+            safetySettings: [{
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_ONLY_HIGH"
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.95,
+              topK: 40,
+              maxOutputTokens: 2048
+            }
+          })
+        });
+        
+        // If this endpoint worked, break the loop
+        if (response.ok) {
+          usedEndpoint = endpoint;
+          console.log("Found working endpoint:", usedEndpoint.split('?')[0]);
+          break;
+        } else {
+          const errorData = await response.json();
+          errorMessages.push(`Endpoint ${endpoint.split('?')[0]}: ${errorData.error?.message || 'Unknown error'}`);
+        }
+      } catch (endpointError) {
+        errorMessages.push(`Endpoint ${endpoint.split('?')[0]}: ${endpointError.message}`);
+      }
+    }
+    
+    // If no endpoint worked
+    if (!response || !response.ok) {
+      console.error("All endpoints failed:", errorMessages);
+      throw new Error(`API request failed on all endpoints. Errors: ${errorMessages.join(', ')}`);
+    }
+
+    // Parse successful response
+    const data = await response.json();
+    console.log("API response:", data);
+    
+    // Handle different response formats from Gemini API
+    if (data.candidates && data.candidates.length > 0) {
+      const candidate = data.candidates[0];
+      
+      // Check if we have content
+      if (candidate.content) {
+        // Check if we have parts with text
+        if (candidate.content.parts && candidate.content.parts.length > 0) {
+          let fullText = '';
+          
+          // Concatenate all text parts
+          for (const part of candidate.content.parts) {
+            if (part.text) {
+              fullText += part.text;
+            }
+          }
+          
+          if (fullText) {
+            console.log("Successfully extracted text from response");
+            return fullText;
+          }
+        }
+      } else if (candidate.text) {
+        // Direct text format (legacy/alternative format)
+        console.log("Using legacy text format");
+        return candidate.text;
+      }
+    }
+    
+    // If we reach here, the response didn't contain expected data
+    console.error("Unexpected response format:", data);
+    throw new Error('Invalid response format from Gemini API');
+  } catch (error) {
+    console.error("Error in callGeminiAPI:", error);
+    
+    // More detailed error handling for common issues
+    if (error.message.includes('API key not valid') || error.message.includes('PERMISSION_DENIED')) {
+      throw new Error("API key is invalid or doesn't have permission. Please get a new key from Google AI Studio.");
+    }
+    
+    throw error;
+  }
+}
+
+// Updated event listeners with better error handling
+function setupEventListeners() {
+  loadMoreBtn.addEventListener('click', fetchPhysicsVideos);
+  closeModalBtn.addEventListener('click', closeVideoModal);
+  
+  // Tab switching
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabId = button.getAttribute('data-tab');
+      switchTab(tabId);
+    });
+  });
+  
+  // Summary tab
+  generateSummaryBtn.addEventListener('click', () => {
+    generateVideoSummary().catch(err => {
+      console.error("Summary generation error:", err);
+      videoSummary.textContent = "Failed to generate summary. Please check console for details and verify your API key.";
+      summaryLoader.style.display = 'none';
+      generateSummaryBtn.disabled = false;
+    });
+  });
+  
+  simplifySummaryBtn.addEventListener('click', () => {
+    simplifyVideoSummary().catch(err => {
+      console.error("Summary simplification error:", err);
+      simplifySummaryBtn.disabled = false;
+      summaryLoader.style.display = 'none';
+    });
+  });
+  
+  // Notes tab
+  generateNotesBtn.addEventListener('click', () => {
+    generateSuggestedNotes().catch(err => {
+      console.error("Notes generation error:", err);
+      userNotes.value = "Failed to generate notes. Please check console for details and verify your API key.";
+      generateNotesBtn.disabled = false;
+    });
+  });
+  
+  saveNotesBtn.addEventListener('click', saveUserNotes);
+  
+  organizeNotesBtn.addEventListener('click', () => {
+    organizeUserNotes().catch(err => {
+      console.error("Notes organization error:", err);
+      organizeNotesBtn.disabled = false;
+    });
+  });
+  
+  // Quiz tab
+  generateQuizBtn.addEventListener('click', () => {
+    generateQuiz().catch(err => {
+      console.error("Quiz generation error:", err);
+      quizContainer.innerHTML = '<p>Error generating quiz. Please check console for details and verify your API key.</p>';
+      quizLoader.style.display = 'none';
+      generateQuizBtn.disabled = false;
+    });
+  });
+}
+
+// Update the parseQuizResponse function to be more robust
+function parseQuizResponse(text) {
+  console.log("Parsing quiz response:", text.substring(0, 200) + "...");
+  const questions = [];
+  
+  try {
+    // Split by double newlines or numbered questions (1., 2., etc.)
+    const questionBlocks = text.split(/\n\n|\n(?=\d+\.)/);
+    
+    for (const block of questionBlocks) {
+      if (!block.trim()) continue;
+      
+      // Try to extract a question
+      const questionMatch = block.match(/(?:Question:?\s?|^\d+\.?\s)(.*?)(?:\n|$)/i);
+      if (!questionMatch) continue;
+      
+      const questionText = questionMatch[1].trim();
+      if (!questionText) continue;
+      
+      // Create question object
+      const question = {
+        text: questionText,
+        options: [],
+        answer: ''
+      };
+      
+      // Extract options
+      const optionMatches = block.match(/[a-d]\)\s.*?(?=\n[a-d]\)|$|\n(?![ \t])\S)/gs);
+      if (optionMatches && optionMatches.length >= 3) {
+        for (let optionText of optionMatches) {
+          optionText = optionText.trim();
+          if (optionText.match(/^[a-d]\)/)) {
+            question.options.push(optionText.substring(2).trim());
+          }
+        }
+      }
+      
+      // Extract answer
+      const answerMatch = block.match(/Answer:?\s?([a-d])/i);
+      if (answerMatch) {
+        question.answer = answerMatch[1].toLowerCase();
+      }
+      
+      // Only add complete questions
+      if (question.text && question.options.length >= 3 && question.answer) {
+        // Ensure we have exactly 4 options, padding if necessary
+        while (question.options.length < 4) {
+          question.options.push(`Option ${question.options.length + 1}`);
+        }
+        
+        // Trim to 4 options if we somehow got more
+        if (question.options.length > 4) {
+          question.options = question.options.slice(0, 4);
+        }
+        
+        questions.push(question);
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing quiz response:", error);
+  }
+  
+  console.log(`Successfully parsed ${questions.length} questions`);
+  return questions;
+}
+async function generateVideoSummary() {
+  // ...
+  const res = await fetch('/api/summarize', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ title: currentVideoTitle })
+  });
+  const data = await res.json();
+  if (data.summary) videoSummary.innerHTML = data.summary.replace(/\n/g,'<br>');
+  else throw new Error(data.error);
+}
+
+async function generateSuggestedNotes() {
+  const res = await fetch('/api/notes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: currentVideoTitle }) });
+  const data = await res.json();
+  if (data.notes) userNotes.value = data.notes; else throw new Error(data.error);
+}
+
+async function generateQuiz() {
+  const res = await fetch('/api/quiz', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: currentVideoTitle, difficulty: quizDifficulty.value }) });
+  const data = await res.json();
+  if (data.quiz) quizQuestions = parseQuizResponse(data.quiz); else throw new Error(data.error);
+}
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <script src="https://apis.google.com/js/api.js"></script>
+</body>
+</html>
